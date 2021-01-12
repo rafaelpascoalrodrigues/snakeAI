@@ -136,6 +136,28 @@ def play():
         if game_is_over:
             continue
 
+        # Initialize sensors
+        sensors = {
+            "snake": (0, 0),
+            "walls": {
+                "color": (0, 255, 180),
+                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
+            }
+        }
+
+        # Calculate sensors positions
+        field_x = FIELD_POSITION[0] + FIELD_BORDER
+        field_y = FIELD_POSITION[1] + FIELD_BORDER
+        pos_x = field_x + snake[0][0] * SEGMENT_SIZE + SEGMENT_SIZE // 2
+        pos_y = field_y + snake[0][1] * SEGMENT_SIZE + SEGMENT_SIZE // 2
+
+        # Sensor to the walls
+        sensors['snake'] = (pos_x, pos_y)
+        sensors['walls']['down'] = (pos_x, field_y + SEGMENT_SIZE * FIELD_SEGMENTS_HEIGHT)
+        sensors['walls']['right'] = (field_x, pos_y)
+        sensors['walls']['up'] = (pos_x, field_y)
+        sensors['walls']['left'] = (field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH, pos_y)
+
         # Draw the game
 
         # Clear the screen
@@ -159,6 +181,17 @@ def play():
         # Draw the snake
         for segment in snake:
             screen.blit(snake_segment_asset, (segment[0] * SEGMENT_SIZE + FIELD_POSITION[0] + FIELD_BORDER, segment[1] * SEGMENT_SIZE + FIELD_POSITION[1] + FIELD_BORDER))
+
+        # Draw the sensors
+        for sensor_obj in sensors:
+            if sensor_obj == 'snake':
+                continue
+
+            for sensor_direction in sensors[sensor_obj]:
+                if sensor_direction == 'color':
+                    continue
+
+                pygame.draw.line(screen, sensors[sensor_obj]['color'], sensors['snake'],sensors[sensor_obj][sensor_direction], 2)
 
         # Update the screen
         pygame.display.update()

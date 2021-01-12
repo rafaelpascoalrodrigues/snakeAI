@@ -147,6 +147,10 @@ def play():
                 "color": (0, 180, 255),
                 "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
             },
+            "food": {
+                "color": (255, 90, 90),
+                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
+            }
         }
 
         # Calculate sensors positions
@@ -186,6 +190,23 @@ def play():
                     sensors['self']['right'] = (distance + SEGMENT_SIZE // 2, fixed)
                 elif segment[0] > snake[0][0] and sensors['self']['left'][0] > distance:
                     sensors['self']['left'] = (distance - SEGMENT_SIZE // 2, fixed)
+
+        # Sensor to the food
+        sensors['food']['down'] = (pos_x, pos_y)
+        sensors['food']['right'] = (pos_x, pos_y)
+        sensors['food']['up'] = (pos_x, pos_y)
+        sensors['food']['left'] = (pos_x, pos_y)
+
+        if snake[0][0] == food[0]:
+            if snake[0][1] > food[1]:
+                sensors['food']['up'] = (pos_x, field_y + food[1] * SEGMENT_SIZE + SEGMENT_SIZE)
+            elif snake[0][1] < food[1]:
+                sensors['food']['down'] = (pos_x, field_y + food[1] * SEGMENT_SIZE)
+        elif snake[0][1] == food[1]:
+            if snake[0][0] < food[0]:
+                sensors['food']['right'] = (field_x + food[0] * SEGMENT_SIZE, pos_y)
+            elif snake[0][0] > food[0]:
+                sensors['food']['left'] = (field_x + food[0] * SEGMENT_SIZE + SEGMENT_SIZE, pos_y)
 
         # Draw the game
 

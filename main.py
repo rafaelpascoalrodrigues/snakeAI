@@ -142,7 +142,11 @@ def play():
             "walls": {
                 "color": (0, 255, 180),
                 "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
-            }
+            },
+            "self": {
+                "color": (0, 180, 255),
+                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
+            },
         }
 
         # Calculate sensors positions
@@ -157,6 +161,31 @@ def play():
         sensors['walls']['right'] = (field_x, pos_y)
         sensors['walls']['up'] = (pos_x, field_y)
         sensors['walls']['left'] = (field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH, pos_y)
+
+        # Sensor to the snake segments
+        sensors['self']['down'] = sensors['walls']['down']
+        sensors['self']['right'] = sensors['walls']['right']
+        sensors['self']['up'] = sensors['walls']['up']
+        sensors['self']['left'] = sensors['walls']['left']
+
+        for segment in snake[1:]:
+            if segment[0] == snake[0][0]:
+                fixed = sensors['self']['up'][0]
+                distance = field_y + segment[1] * SEGMENT_SIZE + SEGMENT_SIZE // 2
+
+                if segment[1] < snake[0][1] and sensors['self']['up'][1] < distance:
+                    sensors['self']['up'] = (fixed, distance + SEGMENT_SIZE // 2)
+                elif segment[1] > snake[0][1] and sensors['self']['down'][1] > distance:
+                    sensors['self']['down'] = (fixed, distance - SEGMENT_SIZE // 2)
+
+            elif segment[1] == snake[0][1]:
+                fixed = sensors['self']['right'][1]
+                distance = field_x + segment[0] * SEGMENT_SIZE + SEGMENT_SIZE // 2
+
+                if segment[0] < snake[0][0] and sensors['self']['right'][0] < distance:
+                    sensors['self']['right'] = (distance + SEGMENT_SIZE // 2, fixed)
+                elif segment[0] > snake[0][0] and sensors['self']['left'][0] > distance:
+                    sensors['self']['left'] = (distance - SEGMENT_SIZE // 2, fixed)
 
         # Draw the game
 
@@ -191,7 +220,7 @@ def play():
                 if sensor_direction == 'color':
                     continue
 
-                pygame.draw.line(screen, sensors[sensor_obj]['color'], sensors['snake'],sensors[sensor_obj][sensor_direction], 2)
+                pygame.draw.line(screen, sensors[sensor_obj]['color'], sensors['snake'], sensors[sensor_obj][sensor_direction], 2)
 
         # Update the screen
         pygame.display.update()

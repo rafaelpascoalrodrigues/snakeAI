@@ -141,7 +141,8 @@ def play():
             "snake": (0, 0),
             "walls": {
                 "color": (0, 255, 180),
-                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
+                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0),
+                "down_right": (0, 0),  "up_right": (0, 0), "up_left": (0, 0), "down_left": (0, 0)
             },
             "self": {
                 "color": (0, 180, 255),
@@ -165,6 +166,26 @@ def play():
         sensors['walls']['left'] = (field_x, pos_y)
         sensors['walls']['up'] = (pos_x, field_y)
         sensors['walls']['right'] = (field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH, pos_y)
+
+        diagonal = field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH - pos_x
+        if (pos_y + diagonal) > (field_y + SEGMENT_SIZE * (FIELD_SEGMENTS_WIDTH + 4)):
+            diagonal = field_y + SEGMENT_SIZE * FIELD_SEGMENTS_HEIGHT - pos_y
+        sensors['walls']['down_right'] = (pos_x + diagonal, pos_y + diagonal)
+
+        diagonal = field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH - pos_x
+        if (pos_y - diagonal) < field_y:
+            diagonal = - (field_y - pos_y)
+        sensors['walls']['up_right'] = (pos_x + diagonal, pos_y - diagonal)
+
+        diagonal = field_x - pos_x
+        if (pos_y + diagonal) < field_y:
+            diagonal = field_y - pos_y
+        sensors['walls']['up_left'] = (pos_x + diagonal, pos_y + diagonal)
+
+        diagonal = field_x - pos_x
+        if (pos_y - diagonal) > (field_y + SEGMENT_SIZE * (FIELD_SEGMENTS_WIDTH + 4)):
+            diagonal = - (field_y + SEGMENT_SIZE * FIELD_SEGMENTS_HEIGHT - pos_y)
+        sensors['walls']['down_left'] = (pos_x + diagonal, pos_y - diagonal)
 
         # Sensor to the snake segments
         sensors['self']['down'] = sensors['walls']['down']

@@ -3,6 +3,13 @@ import random
 import pygame
 from pygame.locals import *
 
+# AI
+import ai_random_play
+
+INPUT_CONTROL_MANUAL = 0
+INPUT_CONTROL_RANDOM_PLAY = 1
+
+
 # Screen size
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -36,7 +43,7 @@ SNAKE_INITIAL_DIRECTION = DOWN
 SNAKE_KEEP_DIRECTION = KEEP
 
 
-def play():
+def play(input_control=INPUT_CONTROL_MANUAL):
     # Initialize recurrent game elements
     snake_segment_asset = pygame.Surface((SEGMENT_SIZE, SEGMENT_SIZE))
     snake_segment_asset.fill(COLOR_WHITE)
@@ -52,6 +59,7 @@ def play():
 
     # Prepare text styles
     font = pygame.font.Font(pygame.font.get_default_font(), 36)
+    font_options = pygame.font.Font(pygame.font.get_default_font(), 16)
     font_data = pygame.font.SysFont('monospace', 12, True)
 
     # Game initial parameters
@@ -89,17 +97,23 @@ def play():
             elif event.type == KEYDOWN:
                 # Restart game event
                 if event.key == K_r:
+                    input_control = INPUT_CONTROL_MANUAL
+                    set_initial = True
+
+                elif event.key == K_1:
+                    input_control = INPUT_CONTROL_RANDOM_PLAY
                     set_initial = True
 
                 # Movement events
-                elif event.key == K_DOWN or event.key == K_s:
-                    input_direction = DOWN
-                elif event.key == K_RIGHT or event.key == K_d:
-                    input_direction = RIGHT
-                elif event.key == K_UP or event.key == K_w:
-                    input_direction = UP
-                elif event.key == K_LEFT or event.key == K_a:
-                    input_direction = LEFT
+                elif input_control == INPUT_CONTROL_MANUAL:
+                    if event.key == K_DOWN or event.key == K_s:
+                        input_direction = DOWN
+                    elif event.key == K_RIGHT or event.key == K_d:
+                        input_direction = RIGHT
+                    elif event.key == K_UP or event.key == K_w:
+                        input_direction = UP
+                    elif event.key == K_LEFT or event.key == K_a:
+                        input_direction = LEFT
 
         # Validate the movement
         if direction == DOWN and input_direction == UP:
@@ -303,6 +317,12 @@ def play():
             elif diagonal[0] < 0 and diagonal[1] > 0:
                 sensors['food']['down_left'] = (distance_x + SEGMENT_SIZE, distance_y - (SEGMENT_SIZE & 0x1))
 
+        # Call AI for directions
+        if input_control == INPUT_CONTROL_MANUAL:
+            pass
+        elif input_control == INPUT_CONTROL_RANDOM_PLAY:
+            direction = ai_random_play.play()
+
         # Draw the game
 
         # Clear the screen
@@ -311,6 +331,10 @@ def play():
         # Draw game information
         screen.blit(font.render('Score: ' + str(score), True, COLOR_WHITE), (10, 10))
         screen.blit(font.render('R to Restart Game', True, COLOR_WHITE), (10, 50))
+
+        screen.blit(font_options.render('1 to Random Play', True, (
+            COLOR_RED if input_control == INPUT_CONTROL_RANDOM_PLAY else COLOR_WHITE
+        )), (10, 100))
 
         # Draw field limits
         pygame.draw.rect(screen, COLOR_WHITE, (

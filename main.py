@@ -24,6 +24,7 @@ COLOR_BLACK = (0, 0, 0)
 COLOR_RED = (255, 0, 0)
 
 # Directions
+KEEP = -1
 DOWN = 0
 RIGHT = 1
 UP = 2
@@ -32,6 +33,7 @@ LEFT = 3
 # Snake initial parameters
 SNAKE_INITIAL = [(1, 1), (1, 1)]
 SNAKE_INITIAL_DIRECTION = DOWN
+SNAKE_KEEP_DIRECTION = KEEP
 
 
 def play():
@@ -55,7 +57,7 @@ def play():
     # Game initial parameters
     snake = [] + SNAKE_INITIAL
     direction = SNAKE_INITIAL_DIRECTION
-    input_direction = SNAKE_INITIAL_DIRECTION
+    input_direction = SNAKE_KEEP_DIRECTION
     score = 0
     food = (-1, -1)
     game_is_over = False
@@ -72,7 +74,7 @@ def play():
             set_initial = False
             snake = [] + SNAKE_INITIAL
             direction = SNAKE_INITIAL_DIRECTION
-            input_direction = SNAKE_INITIAL_DIRECTION
+            input_direction = SNAKE_KEEP_DIRECTION
             score = 0
             food = (-1, -1)
             game_is_over = False
@@ -90,17 +92,29 @@ def play():
                     set_initial = True
 
                 # Movement events
-                elif (event.key == K_DOWN or event.key == K_s) and direction != UP:
+                elif event.key == K_DOWN or event.key == K_s:
                     input_direction = DOWN
-                elif (event.key == K_RIGHT or event.key == K_d) and direction != LEFT:
+                elif event.key == K_RIGHT or event.key == K_d:
                     input_direction = RIGHT
-                elif (event.key == K_UP or event.key == K_w) and direction != DOWN:
+                elif event.key == K_UP or event.key == K_w:
                     input_direction = UP
-                elif (event.key == K_LEFT or event.key == K_a) and direction != RIGHT:
+                elif event.key == K_LEFT or event.key == K_a:
                     input_direction = LEFT
 
+        # Validate the movement
+        if direction == DOWN and input_direction == UP:
+            input_direction = -1
+        elif direction == RIGHT and input_direction == LEFT:
+            input_direction = -1
+        elif direction == UP and input_direction == DOWN:
+            input_direction = -1
+        elif direction == LEFT and input_direction == RIGHT:
+            input_direction = -1
+        elif input_direction != -1:
+            direction = input_direction
+            input_direction = -1
+
         # Apply the movement
-        direction = input_direction
         mov_x, mov_y = +0, +0
         if direction == DOWN:
             mov_x, mov_y = +0, +1

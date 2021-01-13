@@ -162,9 +162,9 @@ def play():
         # Sensor to the walls
         sensors['snake'] = (pos_x, pos_y)
         sensors['walls']['down'] = (pos_x, field_y + SEGMENT_SIZE * FIELD_SEGMENTS_HEIGHT)
-        sensors['walls']['right'] = (field_x, pos_y)
+        sensors['walls']['left'] = (field_x, pos_y)
         sensors['walls']['up'] = (pos_x, field_y)
-        sensors['walls']['left'] = (field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH, pos_y)
+        sensors['walls']['right'] = (field_x + SEGMENT_SIZE * FIELD_SEGMENTS_WIDTH, pos_y)
 
         # Sensor to the snake segments
         sensors['self']['down'] = sensors['walls']['down']
@@ -183,13 +183,13 @@ def play():
                     sensors['self']['down'] = (fixed, distance - SEGMENT_SIZE // 2)
 
             elif segment[1] == snake[0][1]:
-                fixed = sensors['self']['right'][1]
+                fixed = sensors['self']['left'][1]
                 distance = field_x + segment[0] * SEGMENT_SIZE + SEGMENT_SIZE // 2
 
-                if segment[0] < snake[0][0] and sensors['self']['right'][0] < distance:
-                    sensors['self']['right'] = (distance + SEGMENT_SIZE // 2, fixed)
-                elif segment[0] > snake[0][0] and sensors['self']['left'][0] > distance:
-                    sensors['self']['left'] = (distance - SEGMENT_SIZE // 2, fixed)
+                if segment[0] < snake[0][0] and sensors['self']['left'][0] < distance:
+                    sensors['self']['left'] = (distance + SEGMENT_SIZE // 2, fixed)
+                elif segment[0] > snake[0][0] and sensors['self']['right'][0] > distance:
+                    sensors['self']['right'] = (distance - SEGMENT_SIZE // 2, fixed)
 
         # Sensor to the food
         sensors['food']['down'] = (pos_x, pos_y)

@@ -152,7 +152,8 @@ def play():
             },
             "food": {
                 "color": (255, 90, 90),
-                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
+                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0),
+                "down_right": (0, 0),  "up_right": (0, 0), "up_left": (0, 0), "down_left": (0, 0)
             }
         }
 
@@ -251,6 +252,11 @@ def play():
         sensors['food']['up'] = (pos_x, pos_y)
         sensors['food']['left'] = (pos_x, pos_y)
 
+        sensors['food']['down_right'] = (pos_x, pos_y)
+        sensors['food']['up_right'] = (pos_x, pos_y)
+        sensors['food']['up_left'] = (pos_x, pos_y)
+        sensors['food']['down_left'] = (pos_x, pos_y)
+
         if snake[0][0] == food[0]:
             if snake[0][1] > food[1]:
                 sensors['food']['up'] = (pos_x, field_y + food[1] * SEGMENT_SIZE + SEGMENT_SIZE)
@@ -261,6 +267,23 @@ def play():
                 sensors['food']['right'] = (field_x + food[0] * SEGMENT_SIZE, pos_y)
             elif snake[0][0] > food[0]:
                 sensors['food']['left'] = (field_x + food[0] * SEGMENT_SIZE + SEGMENT_SIZE, pos_y)
+
+        diagonal = (food[0] - snake[0][0], food[1] - snake[0][1])
+        if np.absolute(diagonal[0]) == np.absolute(diagonal[1]):
+            distance_x = field_x + food[0] * SEGMENT_SIZE
+            distance_y = field_y + food[1] * SEGMENT_SIZE
+
+            if diagonal[0] > 0 and diagonal[1] > 0:
+                sensors['food']['down_right'] = (distance_x, distance_y)
+
+            elif diagonal[0] > 0 and diagonal[1] < 0:
+                sensors['food']['up_right'] = (distance_x - (SEGMENT_SIZE & 0x1), distance_y + SEGMENT_SIZE)
+
+            elif diagonal[0] < 0 and diagonal[1] < 0:
+                sensors['food']['up_left'] = (distance_x + SEGMENT_SIZE, distance_y + SEGMENT_SIZE)
+
+            elif diagonal[0] < 0 and diagonal[1] > 0:
+                sensors['food']['down_left'] = (distance_x + SEGMENT_SIZE, distance_y - (SEGMENT_SIZE & 0x1))
 
         # Draw the game
 

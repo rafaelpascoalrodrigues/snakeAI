@@ -15,6 +15,9 @@ FIELD_SEGMENTS_HEIGHT = 45
 
 SEGMENT_SIZE = 15
 
+# Sensors data position
+SENSORS_DATA_POSITION = (10, 320)
+
 # Color palette
 COLOR_WHITE = (255, 255, 255)
 COLOR_BLACK = (0, 0, 0)
@@ -47,6 +50,7 @@ def play():
 
     # Prepare text styles
     font = pygame.font.Font(pygame.font.get_default_font(), 36)
+    font_data = pygame.font.SysFont('monospace', 12, True)
 
     # Game initial parameters
     snake = [] + SNAKE_INITIAL
@@ -310,15 +314,26 @@ def play():
             screen.blit(snake_segment_asset, (segment[0] * SEGMENT_SIZE + FIELD_POSITION[0] + FIELD_BORDER, segment[1] * SEGMENT_SIZE + FIELD_POSITION[1] + FIELD_BORDER))
 
         # Draw the sensors
+        data_position = -2
         for sensor_obj in sensors:
             if sensor_obj == 'snake':
                 continue
 
             for sensor_direction in sensors[sensor_obj]:
+                data_position += 1
                 if sensor_direction == 'color':
                     continue
 
                 pygame.draw.line(screen, sensors[sensor_obj]['color'], sensors['snake'], sensors[sensor_obj][sensor_direction], 2)
+                sensor_value = np.sqrt(
+                    (sensors[sensor_obj][sensor_direction][0] - sensors['snake'][0]) ** 2 +
+                    (sensors[sensor_obj][sensor_direction][1] - sensors['snake'][1]) ** 2
+                )
+                sensor_text = 'sensor_' + sensor_obj + '_' + sensor_direction + ':'
+                sensor_text += (25 - len(sensor_text)) * ' ' + ("{:7.3f}".format(sensor_value))
+                screen.blit(font_data.render(sensor_text, True, COLOR_WHITE), (
+                    SENSORS_DATA_POSITION[0], SENSORS_DATA_POSITION[1] + data_position * 15
+                ))
 
         # Update the screen
         pygame.display.update()

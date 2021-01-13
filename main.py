@@ -1,3 +1,4 @@
+import numpy as np
 import random
 import pygame
 from pygame.locals import *
@@ -146,7 +147,8 @@ def play():
             },
             "self": {
                 "color": (0, 180, 255),
-                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0)
+                "down": (0, 0), "right": (0, 0), "up": (0, 0), "left": (0, 0),
+                "down_right": (0, 0),  "up_right": (0, 0), "up_left": (0, 0), "down_left": (0, 0)
             },
             "food": {
                 "color": (255, 90, 90),
@@ -193,6 +195,11 @@ def play():
         sensors['self']['up'] = sensors['walls']['up']
         sensors['self']['left'] = sensors['walls']['left']
 
+        sensors['self']['down_right'] = sensors['walls']['down_right']
+        sensors['self']['up_right'] = sensors['walls']['up_right']
+        sensors['self']['up_left'] = sensors['walls']['up_left']
+        sensors['self']['down_left'] = sensors['walls']['down_left']
+
         for segment in snake[1:]:
             if segment[0] == snake[0][0]:
                 fixed = sensors['self']['up'][0]
@@ -211,6 +218,32 @@ def play():
                     sensors['self']['left'] = (distance + SEGMENT_SIZE // 2, fixed)
                 elif segment[0] > snake[0][0] and sensors['self']['right'][0] > distance:
                     sensors['self']['right'] = (distance - SEGMENT_SIZE // 2, fixed)
+
+            diagonal = (segment[0] - snake[0][0], segment[1] - snake[0][1])
+            if np.absolute(diagonal[0]) == np.absolute(diagonal[1]):
+                distance_x = field_x + segment[0] * SEGMENT_SIZE
+                distance_y = field_y + segment[1] * SEGMENT_SIZE
+                distance_new = np.sqrt((distance_x - pos_x) ** 2 + (distance_y - pos_y) ** 2)
+
+                if diagonal[0] > 0 and diagonal[1] > 0:
+                    distance_old = np.sqrt((sensors['self']['down_right'][0] - pos_x) ** 2 + (sensors['self']['down_right'][1] - pos_y) ** 2)
+                    if distance_new < distance_old:
+                        sensors['self']['down_right'] = (distance_x, distance_y)
+
+                elif diagonal[0] > 0 and diagonal[1] < 0:
+                    distance_old = np.sqrt((sensors['self']['up_right'][0] - pos_x) ** 2 + (sensors['self']['up_right'][1] - pos_y) ** 2)
+                    if distance_new < distance_old:
+                        sensors['self']['up_right'] = (distance_x - (SEGMENT_SIZE & 0x1), distance_y + SEGMENT_SIZE)
+
+                elif diagonal[0] < 0 and diagonal[1] < 0:
+                    distance_old = np.sqrt((sensors['self']['up_left'][0] - pos_x) ** 2 + (sensors['self']['up_left'][1] - pos_y) ** 2)
+                    if distance_new < distance_old:
+                        sensors['self']['up_left'] = (distance_x + SEGMENT_SIZE, distance_y + SEGMENT_SIZE)
+
+                elif diagonal[0] < 0 and diagonal[1] > 0:
+                    distance_old = np.sqrt((sensors['self']['down_left'][0] - pos_x) ** 2 + (sensors['self']['down_left'][1] - pos_y) ** 2)
+                    if distance_new < distance_old:
+                        sensors['self']['down_left'] = (distance_x + SEGMENT_SIZE, distance_y - (SEGMENT_SIZE & 0x1))
 
         # Sensor to the food
         sensors['food']['down'] = (pos_x, pos_y)

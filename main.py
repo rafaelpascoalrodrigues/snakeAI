@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import random
 import pygame
@@ -8,7 +9,6 @@ import ai_random_play
 
 INPUT_CONTROL_MANUAL = 0
 INPUT_CONTROL_RANDOM_PLAY = 1
-
 
 # Screen size
 SCREEN_WIDTH = 1280
@@ -43,7 +43,7 @@ SNAKE_INITIAL_DIRECTION = DOWN
 SNAKE_KEEP_DIRECTION = KEEP
 
 
-def play(input_control=INPUT_CONTROL_MANUAL):
+def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
     # Initialize recurrent game elements
     snake_segment_asset = pygame.Surface((SEGMENT_SIZE, SEGMENT_SIZE))
     snake_segment_asset.fill(COLOR_WHITE)
@@ -62,7 +62,13 @@ def play(input_control=INPUT_CONTROL_MANUAL):
     font_options = pygame.font.Font(pygame.font.get_default_font(), 16)
     font_data = pygame.font.SysFont('monospace', 12, True)
 
+    prng = random.Random()
+    if seed is None:
+        fixed_random_seed = False
+        seed = random.randrange(sys.maxsize)
+
     # Game initial parameters
+    prng.seed(seed, 2)
     snake = [] + SNAKE_INITIAL
     direction = SNAKE_INITIAL_DIRECTION
     input_direction = SNAKE_KEEP_DIRECTION
@@ -79,6 +85,8 @@ def play(input_control=INPUT_CONTROL_MANUAL):
 
         # Set initial parameters on a new game
         if set_initial:
+            if fixed_random_seed:
+                prng.seed(seed, 2)
             set_initial = False
             snake = [] + SNAKE_INITIAL
             direction = SNAKE_INITIAL_DIRECTION
@@ -100,6 +108,11 @@ def play(input_control=INPUT_CONTROL_MANUAL):
                     input_control = INPUT_CONTROL_MANUAL
                     set_initial = True
 
+                # Toggle renew of the random seed on each execution
+                elif event.key == K_0:
+                    fixed_random_seed = not fixed_random_seed
+
+                # Restart game with AI Control
                 elif event.key == K_1:
                     input_control = INPUT_CONTROL_RANDOM_PLAY
                     set_initial = True
@@ -149,7 +162,7 @@ def play(input_control=INPUT_CONTROL_MANUAL):
 
         # Create a food if already not exists
         while food[0] == -1:
-            food = (random.randint(0, FIELD_SEGMENTS_WIDTH - 1), random.randint(0, FIELD_SEGMENTS_HEIGHT - 1))
+            food = (prng.randint(0, FIELD_SEGMENTS_WIDTH - 1), prng.randint(0, FIELD_SEGMENTS_HEIGHT - 1))
             # Prevent create a food on a invalid place
             for segment in snake:
                 if food[0] == segment[0] and food[1] == segment[1]:
@@ -331,6 +344,10 @@ def play(input_control=INPUT_CONTROL_MANUAL):
         # Draw game information
         screen.blit(font.render('Score: ' + str(score), True, COLOR_WHITE), (10, 10))
         screen.blit(font.render('R to Restart Game', True, COLOR_WHITE), (10, 50))
+
+        screen.blit(font_options.render(
+            'Using ' + ('fixed' if fixed_random_seed else 'random') + ' food seed (0 to Change)',
+            True, COLOR_WHITE), (340, 65))
 
         screen.blit(font_options.render('1 to Random Play', True, (
             COLOR_RED if input_control == INPUT_CONTROL_RANDOM_PLAY else COLOR_WHITE

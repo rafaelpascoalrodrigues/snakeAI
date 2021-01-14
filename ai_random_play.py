@@ -1,8 +1,11 @@
 import random
 
+# Random engine
+prng = random.Random()
+
 
 def play():
-    return random.randint(0, 3)
+    return prng.randint(0, 3)
 
 
 def main():

@@ -62,6 +62,7 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
     font_options = pygame.font.Font(pygame.font.get_default_font(), 16)
     font_data = pygame.font.SysFont('monospace', 12, True)
 
+    fixed_random_seed = True
     prng = random.Random()
     if seed is None:
         fixed_random_seed = False

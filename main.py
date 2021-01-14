@@ -335,7 +335,7 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
         if input_control == INPUT_CONTROL_MANUAL:
             pass
         elif input_control == INPUT_CONTROL_RANDOM_PLAY:
-            direction = ai_random_play.play()
+            input_direction = ai_random_play.play()
 
         # Draw the game
 

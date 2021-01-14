@@ -43,7 +43,7 @@ SNAKE_INITIAL_DIRECTION = DOWN
 SNAKE_KEEP_DIRECTION = KEEP
 
 
-def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
+def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_run: bool = False) -> {}:
     # Initialize recurrent game elements
     snake_segment_asset = pygame.Surface((SEGMENT_SIZE, SEGMENT_SIZE))
     snake_segment_asset.fill(COLOR_WHITE)
@@ -51,16 +51,25 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
     food_asset = pygame.Surface((SEGMENT_SIZE, SEGMENT_SIZE))
     food_asset.fill(COLOR_RED)
 
-    # Initialize pygame window
-    pygame.init()
-    pygame.display.set_caption('snake')
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    clock = pygame.time.Clock()
+    # Assignment of visual elements
+    screen = None
+    clock = None
+    font = None
+    font_options = None
+    font_data = None
 
-    # Prepare text styles
-    font = pygame.font.Font(pygame.font.get_default_font(), 36)
-    font_options = pygame.font.Font(pygame.font.get_default_font(), 16)
-    font_data = pygame.font.SysFont('monospace', 12, True)
+    # Ignore visual elements if running a machine requested run
+    if not machine_run:
+        # Initialize pygame window
+        pygame.init()
+        pygame.display.set_caption('snake')
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        clock = pygame.time.Clock()
+
+        # Prepare text styles
+        font = pygame.font.Font(pygame.font.get_default_font(), 36)
+        font_options = pygame.font.Font(pygame.font.get_default_font(), 16)
+        font_data = pygame.font.SysFont('monospace', 12, True)
 
     fixed_random_seed = True
     prng = random.Random()
@@ -81,8 +90,9 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
     set_initial = True
     game_running = True
     while game_running:
-        # Set frame rate
-        clock.tick(10)
+        # Set frame rate if not running a machine requested run
+        if not machine_run:
+            clock.tick(10)
 
         # Set initial parameters on a new game
         if set_initial:
@@ -96,38 +106,40 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
             food = (-1, -1)
             game_is_over = False
 
-        # Capture events
-        for event in pygame.event.get():
-            # Quit event
-            if event.type == QUIT:
-                game_running = False
+        # Ignore input events if running a machine requested run
+        if not machine_run:
+            # Capture events
+            for event in pygame.event.get():
+                # Quit event
+                if event.type == QUIT:
+                    game_running = False
 
-            # Keyboard events
-            elif event.type == KEYDOWN:
-                # Restart game event
-                if event.key == K_r:
-                    input_control = INPUT_CONTROL_MANUAL
-                    set_initial = True
+                # Keyboard events
+                elif event.type == KEYDOWN:
+                    # Restart game event
+                    if event.key == K_r:
+                        input_control = INPUT_CONTROL_MANUAL
+                        set_initial = True
 
-                # Toggle renew of the random seed on each execution
-                elif event.key == K_0:
-                    fixed_random_seed = not fixed_random_seed
+                    # Toggle renew of the random seed on each execution
+                    elif event.key == K_0:
+                        fixed_random_seed = not fixed_random_seed
 
-                # Restart game with AI Control
-                elif event.key == K_1:
-                    input_control = INPUT_CONTROL_RANDOM_PLAY
-                    set_initial = True
+                    # Restart game with AI Control
+                    elif event.key == K_1:
+                        input_control = INPUT_CONTROL_RANDOM_PLAY
+                        set_initial = True
 
-                # Movement events
-                elif input_control == INPUT_CONTROL_MANUAL:
-                    if event.key == K_DOWN or event.key == K_s:
-                        input_direction = DOWN
-                    elif event.key == K_RIGHT or event.key == K_d:
-                        input_direction = RIGHT
-                    elif event.key == K_UP or event.key == K_w:
-                        input_direction = UP
-                    elif event.key == K_LEFT or event.key == K_a:
-                        input_direction = LEFT
+                    # Movement events
+                    elif input_control == INPUT_CONTROL_MANUAL:
+                        if event.key == K_DOWN or event.key == K_s:
+                            input_direction = DOWN
+                        elif event.key == K_RIGHT or event.key == K_d:
+                            input_direction = RIGHT
+                        elif event.key == K_UP or event.key == K_w:
+                            input_direction = UP
+                        elif event.key == K_LEFT or event.key == K_a:
+                            input_direction = LEFT
 
         # Validate the movement
         if direction == DOWN and input_direction == UP:
@@ -181,6 +193,9 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
 
         # Interrupt game update after a collision
         if game_is_over:
+            # Finish the request if running a machine requested run
+            if machine_run:
+                return {"score": score}
             continue
 
         # Initialize sensors
@@ -336,6 +351,10 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None):
             pass
         elif input_control == INPUT_CONTROL_RANDOM_PLAY:
             input_direction = ai_random_play.play()
+
+        # Prevent draw the game if running a machine requested run
+        if machine_run:
+            continue
 
         # Draw the game
 

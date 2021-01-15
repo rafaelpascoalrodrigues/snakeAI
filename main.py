@@ -43,7 +43,8 @@ SNAKE_INITIAL_DIRECTION = DOWN
 SNAKE_KEEP_DIRECTION = KEEP
 
 
-def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_run: bool = False) -> {}:
+def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_run: bool = False,
+         script_play: [int] = None) -> {}:
     # Initialize recurrent game elements
     snake_segment_asset = pygame.Surface((SEGMENT_SIZE, SEGMENT_SIZE))
     snake_segment_asset.fill(COLOR_WHITE)
@@ -355,6 +356,8 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
         # Call AI for directions
         if input_control == INPUT_CONTROL_MANUAL:
             pass
+        elif machine_run and len(script_play) > moves:
+            input_direction = script_play[moves]
         elif input_control == INPUT_CONTROL_RANDOM_PLAY:
             input_direction = ai_random_play.play()
 

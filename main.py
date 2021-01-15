@@ -44,7 +44,7 @@ SNAKE_KEEP_DIRECTION = KEEP
 
 
 def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_run: bool = False,
-         script_play: [int] = None) -> {}:
+         script_play: [int] = None, initial_state: {} = None) -> {}:
     # Initialize recurrent game elements
     snake_segment_asset = pygame.Surface((SEGMENT_SIZE, SEGMENT_SIZE))
     snake_segment_asset.fill(COLOR_WHITE)
@@ -80,13 +80,18 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
 
     # Game initial parameters
     prng.seed(seed, 2)
-    snake = [] + SNAKE_INITIAL
-    direction = SNAKE_INITIAL_DIRECTION
+    if initial_state is not None:
+        snake = initial_state['snake'] if len(initial_state['snake']) > 0 else [] + SNAKE_INITIAL
+        food = initial_state['food'] if len(initial_state['food']) > 0 else (-1, -1)
+        direction = initial_state['direction'] if initial_state['direction'] is not None else SNAKE_INITIAL_DIRECTION
+    else:
+        snake = [] + SNAKE_INITIAL
+        food = (-1, -1)
+        direction = SNAKE_INITIAL_DIRECTION
     input_direction = SNAKE_KEEP_DIRECTION
     score = 0
     moves = 0
     history = []
-    food = (-1, -1)
     game_is_over = False
 
     # Game loop
@@ -102,13 +107,18 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
             if fixed_random_seed:
                 prng.seed(seed, 2)
             set_initial = False
-            snake = [] + SNAKE_INITIAL
-            direction = SNAKE_INITIAL_DIRECTION
+            if initial_state is not None:
+                snake = initial_state['snake'] if len(initial_state['snake']) > 0 else [] + SNAKE_INITIAL
+                food = initial_state['food'] if len(initial_state['food']) > 0 else (-1, -1)
+                direction = initial_state['direction'] if initial_state['direction'] is not None else SNAKE_INITIAL_DIRECTION
+            else:
+                snake = [] + SNAKE_INITIAL
+                food = (-1, -1)
+                direction = SNAKE_INITIAL_DIRECTION
             input_direction = SNAKE_KEEP_DIRECTION
+            score = 0
             moves = 0
             history = []
-            score = 0
-            food = (-1, -1)
             game_is_over = False
 
         # Ignore input events if running a machine requested run

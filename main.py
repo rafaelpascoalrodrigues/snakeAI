@@ -83,6 +83,7 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
     direction = SNAKE_INITIAL_DIRECTION
     input_direction = SNAKE_KEEP_DIRECTION
     score = 0
+    moves = 0
     food = (-1, -1)
     game_is_over = False
 
@@ -102,6 +103,7 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
             snake = [] + SNAKE_INITIAL
             direction = SNAKE_INITIAL_DIRECTION
             input_direction = SNAKE_KEEP_DIRECTION
+            moves = 0
             score = 0
             food = (-1, -1)
             game_is_over = False
@@ -155,6 +157,7 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
             input_direction = -1
 
         # Apply the movement
+        moves += 1
         mov_x, mov_y = +0, +0
         if direction == DOWN:
             mov_x, mov_y = +0, +1
@@ -195,7 +198,7 @@ def play(input_control: int = INPUT_CONTROL_MANUAL, seed: int = None, machine_ru
         if game_is_over:
             # Finish the request if running a machine requested run
             if machine_run:
-                return {"score": score}
+                return {"score": score, "moves": moves}
             continue
 
         # Initialize sensors
